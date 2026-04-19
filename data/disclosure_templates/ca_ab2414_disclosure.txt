@@ -1,6 +1,10 @@
 NOTICE REGARDING CREDIT-BASED INSURANCE SCORING
 Example Mutual Insurance Co
 
+Insured:  {{ named_insured }}
+State:    {{ state }}
+Date:     {{ date }}
+
 NOTICE: Example Mutual Insurance Co has used credit-based insurance scoring in
 determining your premium. You have the right to request a re-evaluation of your
 premium if you believe your credit information is inaccurate or if you have

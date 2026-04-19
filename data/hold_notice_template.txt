@@ -1,0 +1,25 @@
+JURISDICTION HOLD NOTICE
+Example Mutual Insurance Co
+================================================================================
+
+Submission ID: {{ submission_id }}
+Named Insured: {{ named_insured }}
+Writing State: {{ writing_state }}
+Date:          {{ date }}
+
+NOTICE OF JURISDICTION INELIGIBILITY
+
+This submission has been placed on hold and cannot proceed to the admitted or
+surplus lines market at this time due to the following regulatory finding:
+
+  REASON:         {{ block_reason }}
+  STATUTORY REF:  {{ statutory_ref }}
+
+No coverage may be bound or quoted for this risk until the hold is resolved.
+Please contact your underwriting supervisor or compliance team for next steps.
+
+This notice is generated automatically by the Jura Jurisdiction & Regulatory
+Authority system (prototype). For questions, contact your compliance officer.
+
+--------------------------------------------------------------------------------
+Example Mutual Insurance Co | Compliance & Underwriting Operations

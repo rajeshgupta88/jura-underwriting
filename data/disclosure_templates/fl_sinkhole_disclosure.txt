@@ -1,6 +1,10 @@
 SINKHOLE COVERAGE NOTICE
 Example Mutual Insurance Co
 
+Insured:  {{ named_insured }}
+State:    {{ state }}
+Date:     {{ date }}
+
 SINKHOLE COVERAGE NOTICE: Florida law requires disclosure that your commercial
 property policy includes coverage for catastrophic ground cover collapse as
 defined under Florida Statutes §627.706. This is not the same as comprehensive

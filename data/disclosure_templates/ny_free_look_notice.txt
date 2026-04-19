@@ -1,6 +1,10 @@
 FREE LOOK PERIOD NOTICE
 Example Mutual Insurance Co
 
+Insured:  {{ named_insured }}
+State:    {{ state }}
+Date:     {{ date }}
+
 FREE LOOK PERIOD: You have 10 days from receipt of this policy to review its
 terms and conditions. If you are not satisfied with this policy for any reason,
 you may return it to Example Mutual Insurance Co or your licensed agent within
