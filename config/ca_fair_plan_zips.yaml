@@ -1,0 +1,24 @@
+metadata:
+  last_updated: "2024-06-01"
+  source: "CA FAIR Plan wildfire designation 2024"
+  description: >
+    Three-digit ZIP prefix list for high-brush wildfire hazard zones.
+    Any premises ZIP starting with one of these prefixes requires FAIR Plan
+    overlap check before admitted placement.
+
+fair_plan_zip_prefixes:
+  - "902"   # Los Angeles (West LA, Beverly Hills area)
+  - "913"   # Pomona / San Gabriel Valley foothills
+  - "914"   # Glendale / La Cañada Flintridge
+  - "915"   # Pasadena foothills
+  - "916"   # San Fernando Valley (north)
+  - "917"   # Burbank / North Hollywood hills
+  - "918"   # Northridge / Chatsworth
+  - "919"   # Malibu / Pacific Palisades / Topanga
+  - "920"   # San Diego (inland)
+  - "921"   # San Diego (East County / Cuyamaca foothills)
+  - "930"   # Ventura County
+  - "931"   # Santa Barbara / Ojai foothills
+  - "932"   # Bakersfield / Kern County foothills
+  - "934"   # Santa Maria / San Luis Obispo foothills
+  - "935"   # Paso Robles / Templeton

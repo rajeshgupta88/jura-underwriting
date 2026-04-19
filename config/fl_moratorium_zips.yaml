@@ -1,0 +1,21 @@
+metadata:
+  last_updated: "2024-03-15"
+  source: "FL DOI Emergency Order 2024-01"
+  description: "Coastal ZIP codes subject to new business moratorium for property coverage"
+
+moratorium_zips:
+  - "33139"   # Miami Beach
+  - "33140"   # Miami Beach (North)
+  - "33141"   # Miami Beach (Normandy Isles)
+  - "33154"   # Bal Harbour
+  - "33160"   # North Miami Beach / Sunny Isles
+  - "34228"   # Longboat Key
+  - "34236"   # Sarasota (bayfront)
+  - "32459"   # Santa Rosa Beach
+  - "32550"   # Miramar Beach / Destin area
+  - "33755"   # Clearwater
+  - "33756"   # Clearwater (South)
+  - "33767"   # Clearwater Beach
+  - "34102"   # Naples
+  - "34103"   # Naples Park Shore
+  - "34108"   # Naples Pelican Bay

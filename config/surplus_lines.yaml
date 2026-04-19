@@ -1,0 +1,59 @@
+metadata:
+  version: "1.0.0"
+  effective_date: "2024-01-01"
+  carrier: "Example Mutual Insurance Co"
+
+thresholds:
+  CA:
+    tiv_threshold: 2000000
+    eligible_sics:
+      - 7011   # Hotels and motels
+      - 7999   # Amusement and recreation services
+      - 8049   # Offices and clinics of other health practitioners
+      - 4911   # Electric services
+      - 5812   # Eating places
+  FL:
+    tiv_threshold: 1000000
+    eligible_sics:
+      - 7011   # Hotels and motels
+      - 4481   # Deep sea foreign transportation of freight
+      - 7999   # Amusement and recreation services
+      - 5812   # Eating places
+      - 1731   # Electrical work
+  TX:
+    tiv_threshold: 5000000
+    eligible_sics:
+      - 1311   # Crude petroleum and natural gas
+      - 1381   # Drilling oil and gas wells
+      - 4911   # Electric services
+      - 7011   # Hotels and motels
+      - 5812   # Eating places
+  NY:
+    tiv_threshold: 3000000
+    eligible_sics:
+      - 7011   # Hotels and motels
+      - 7999   # Amusement and recreation services
+      - 8049   # Offices and clinics of other health practitioners
+      - 5812   # Eating places
+      - 7372   # Prepackaged software
+
+diligent_search_requirements:
+  CA:
+    min_declinations: 3
+    notes: "Must document three admitted market declinations before E&S placement per CA Ins Code §1765.1"
+  FL:
+    min_declinations: 3
+    notes: "Three admitted market declinations required per FL Ins Code §626.916"
+  TX:
+    min_declinations: 2
+    notes: "Two admitted market declinations required per TX Ins Code §981.005"
+  NY:
+    min_declinations: 3
+    notes: "Three admitted market declinations required per NY Ins Law §2118"
+
+mock_admitted_carriers:
+  - "Keystone Mutual"
+  - "Atlas Property Insurance"
+  - "Meridian Casualty Co"
+  - "Summit Underwriters"
+  - "Coastal Re Group"
