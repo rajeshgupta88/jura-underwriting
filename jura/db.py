@@ -19,6 +19,7 @@ VALID_STATUSES: set[str] = {
     "multi_state_conflict",
     "jurisdiction_blocked",
     "forwarded_to_aria",
+    "aria_pending_retry",
 }
 
 _SEED: list[dict] = [
