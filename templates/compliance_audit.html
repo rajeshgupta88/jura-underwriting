@@ -1,0 +1,57 @@
+{% extends "compliance_base.html" %}
+{% block title %}Decisions log{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">Compliance decisions log</div>
+    <div class="page-sub">All reviewer decisions — append-only audit trail</div>
+  </div>
+</div>
+
+<div class="card" style="padding:0; overflow:hidden;">
+  {% if decisions %}
+  <table>
+    <thead>
+      <tr>
+        <th>Submission ID</th>
+        <th>Named insured</th>
+        <th>Choice</th>
+        <th>Reviewer</th>
+        <th>Notes</th>
+        <th>Decided at</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for d in decisions %}
+      <tr>
+        <td class="mono" style="font-size:11px">
+          <a href="/compliance/review/{{ d.submission_id }}"
+             style="color: var(--blue-text);">{{ d.submission_id }}</a>
+        </td>
+        <td>{{ d.named_insured or '—' }}</td>
+        <td>
+          {% if d.choice == 'approve' %}
+            <span class="flag-badge" style="background:var(--green-bg);color:var(--green-text)">approve</span>
+          {% elif d.choice == 'request_changes' %}
+            <span class="flag-badge warn">request_changes</span>
+          {% else %}
+            <span class="flag-badge clear">{{ d.choice }}</span>
+          {% endif %}
+        </td>
+        <td>{{ d.reviewer_id or '—' }}</td>
+        <td style="color: var(--muted); font-size:12px; max-width:180px;">{{ d.notes or '' }}</td>
+        <td class="mono" style="font-size:11px; white-space:nowrap;">
+          {{ d.decided_at[:19].replace('T', ' ') if d.decided_at else '—' }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">
+    <strong>No decisions recorded yet.</strong>
+    Decisions appear here after reviewers act on submissions.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

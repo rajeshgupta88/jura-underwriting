@@ -1,0 +1,123 @@
+{% extends "compliance_base.html" %}
+
+{% block title %}Review — {{ sub.named_insured }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">{{ sub.named_insured }}</div>
+    <div class="page-sub mono">{{ sub.id }} · {{ sub.writing_state }} · {{ sub.premises_zip }}</div>
+  </div>
+  {% if sla %}
+    <span class="sla {{ sla.urgency }}" style="font-size:14px; padding: 6px 14px;">
+      {{ sla.label }}
+    </span>
+  {% endif %}
+</div>
+
+{% if sub.status != 'admitted_disclose_pending' %}
+<div class="banner info">
+  This submission is no longer pending review. Current status: <strong>{{ sub.status }}</strong>
+</div>
+{% endif %}
+
+<!-- Submission details -->
+<div class="card">
+  <div class="card-title">Submission details</div>
+  <div class="detail-grid">
+    <div class="detail-row">
+      <span class="detail-label">Named insured</span>
+      <span class="detail-value">{{ sub.named_insured }}</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">SIC code</span>
+      <span class="detail-value">{{ sub.sic_code }} — {{ sub.sic_description }}</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Writing state / ZIP</span>
+      <span class="detail-value">{{ sub.writing_state }} · {{ sub.premises_zip }}</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">TIV</span>
+      <span class="detail-value">{{ "${:,.0f}".format(sub.tiv) if sub.tiv else 'N/A' }}</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Market determination</span>
+      <span class="detail-value">{{ sub.market or '—' }}</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Checked at</span>
+      <span class="detail-value mono" style="font-size:12px">{{ checked_at or '—' }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- DOI flags -->
+{% if doi_flags %}
+<div class="card-title" style="margin-bottom:10px">DOI flags requiring action</div>
+{% for flag in doi_flags %}
+{% if flag.level == 'disclose' %}
+<div class="flag-card">
+  <div class="flag-card-header">
+    <span class="flag-badge disclose">DISCLOSE</span>
+    <strong>{{ flag.rule_id }}</strong>
+    <span class="statutory-ref">{{ flag.statutory_ref }}</span>
+  </div>
+  <div class="flag-card-body">
+    <div class="detail-label" style="margin-bottom:6px">Trigger condition</div>
+    <div style="font-size:12px; color: var(--muted); margin-bottom:12px; font-family: monospace;">
+      {{ flag.trigger or flag.get('description', '—') }}
+    </div>
+
+    {% if disclosure_contents.get(flag.rule_id) %}
+    <div class="detail-label" style="margin-bottom:4px">Disclosure document</div>
+    <div class="doc-box">{{ disclosure_contents[flag.rule_id] }}</div>
+    <div style="margin-top:6px">
+      <a href="/compliance/disclosure/{{ sub.id }}/{{ flag.rule_id }}"
+         style="font-size:12px; color: var(--blue-text);">
+        View / download plain text ↗
+      </a>
+    </div>
+    {% else %}
+    <div style="font-size:12px; color: var(--muted);">No disclosure document on disk yet.</div>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+{% endfor %}
+{% else %}
+  <div class="card"><div style="color: var(--muted); font-size:13px;">No DOI flags in audit log.</div></div>
+{% endif %}
+
+<!-- Decision form -->
+{% if sub.status == 'admitted_disclose_pending' %}
+<details class="decision" id="decide">
+  <summary>▸ Make a decision</summary>
+  <div class="decision-body">
+    <form method="POST" action="/compliance/review/{{ sub.id }}/decide">
+      <div class="radio-group">
+        <label class="radio-label">
+          <input type="radio" name="choice" value="approve" required>
+          <span>✓ Approve disclosure — forward to Aria for scoring</span>
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="choice" value="request_changes">
+          <span>↩ Request changes — keep in queue</span>
+        </label>
+      </div>
+      <label class="field" for="reviewer_id">Reviewer ID <span style="color:var(--red)">*</span></label>
+      <input type="text" id="reviewer_id" name="reviewer_id" placeholder="e.g. jsmith" required>
+      <label class="field" for="notes">Notes (optional)</label>
+      <textarea id="notes" name="notes" placeholder="Add any compliance notes..."></textarea>
+      <button type="submit" class="btn btn-primary">Submit decision</button>
+    </form>
+  </div>
+</details>
+{% else %}
+<div class="card">
+  <div style="color: var(--muted); font-size:13px;">
+    Decision submitted — status: <strong>{{ sub.status }}</strong>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

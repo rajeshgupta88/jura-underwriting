@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query
 from rich.console import Console
 
+from compliance.review import router as compliance_router
 from jura.audit import JurisdictionAuditLogger
 from jura.checker import ADMITTED_STATES
 from jura.db import SubmissionDB, _SEED
@@ -64,6 +65,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Jura", version=_VERSION, lifespan=lifespan)
+app.include_router(compliance_router)
 
 
 # ---------------------------------------------------------------------------
@@ -115,18 +117,6 @@ def get_submission(submission_id: str):
     if row is None:
         raise HTTPException(status_code=404, detail=f"Submission {submission_id!r} not found")
     return row
-
-
-@app.get("/compliance/queue")
-def get_compliance_queue():
-    db: SubmissionDB = app.state.db
-    return db.get_compliance_queue()
-
-
-@app.get("/compliance/blocks")
-def get_compliance_blocks():
-    db: SubmissionDB = app.state.db
-    return db.get_blocks()
 
 
 @app.get("/health")

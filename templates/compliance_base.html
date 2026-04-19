@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="refresh" content="15">
+  <title>{% block title %}Compliance{% endblock %} — Jura</title>
+  <style>
+    :root {
+      --bg-page:    #F5F4F0;
+      --bg-surface: #FFFFFF;
+      --bg-muted:   #F1EFE8;
+      --border:     rgba(0,0,0,0.09);
+      --text:       #1a1a18;
+      --muted:      #6b6a65;
+      --blue:       #378ADD;
+      --blue-bg:    #E6F1FB;
+      --blue-text:  #0C447C;
+      --amber:      #EF9F27;
+      --amber-bg:   #FAEEDA;
+      --amber-text: #633806;
+      --red:        #E24B4A;
+      --red-bg:     #FCEBEB;
+      --red-text:   #A32D2D;
+      --green:      #1D9E75;
+      --green-bg:   #E1F5EE;
+      --green-text: #085041;
+      --purple:     #7F77DD;
+      --purple-bg:  #EEEDFE;
+      --purple-text:#3C3489;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 14px;
+      background: var(--bg-page);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 180px;
+      min-width: 180px;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+    }
+    .sidebar-brand {
+      padding: 18px 16px 14px;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.01em;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-brand span { color: var(--blue); }
+    .sidebar-nav { flex: 1; padding: 8px 0; }
+    .nav-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      border-left: 2px solid transparent;
+      transition: background 0.1s;
+    }
+    .nav-link:hover { background: var(--bg-muted); color: var(--text); }
+    .nav-link.active {
+      background: var(--bg-muted);
+      border-left-color: var(--blue);
+      color: var(--text);
+      font-weight: 500;
+    }
+    .nav-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 1px 6px;
+      border-radius: 10px;
+      background: var(--amber-bg);
+      color: var(--amber-text);
+    }
+    .nav-badge.red { background: var(--red-bg); color: var(--red-text); }
+    .nav-badge.blue { background: var(--blue-bg); color: var(--blue-text); }
+    .nav-badge.purple { background: var(--purple-bg); color: var(--purple-text); }
+    .sidebar-footer {
+      padding: 14px 16px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .llm-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      background: var(--blue-bg);
+      color: var(--blue-text);
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    /* ── Main layout ── */
+    .main {
+      margin-left: 180px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 900px;
+    }
+    .topbar {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 28px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .topbar-left { display: flex; align-items: baseline; gap: 10px; }
+    .topbar-title { font-size: 15px; font-weight: 600; }
+    .topbar-sub { font-size: 12px; color: var(--muted); }
+    .live-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: var(--green-bg);
+      color: var(--green-text);
+    }
+    .content { padding: 24px 28px; }
+
+    /* ── Banners ── */
+    .banner {
+      padding: 10px 14px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+    .banner.success { background: var(--green-bg); color: var(--green-text); }
+    .banner.info    { background: var(--blue-bg);  color: var(--blue-text); }
+    .banner.warn    { background: var(--amber-bg); color: var(--amber-text); }
+
+    /* ── Metric cards ── */
+    .metric-row { display: flex; gap: 12px; margin-bottom: 20px; }
+    .metric-card {
+      flex: 1;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .metric-value { font-size: 28px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+    .metric-label { font-size: 12px; color: var(--muted); }
+
+    /* ── Submission card ── */
+    .sub-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 10px;
+    }
+    .sub-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 6px;
+    }
+    .sub-name { font-weight: 600; font-size: 14px; }
+    .sub-id { font-size: 11px; color: var(--muted); font-family: monospace; }
+    .sub-meta { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    .flag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .flag-badge {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+    .flag-badge.disclose { background: var(--amber-bg); color: var(--amber-text); }
+    .flag-badge.block    { background: var(--red-bg);   color: var(--red-text); }
+    .flag-badge.warn     { background: var(--purple-bg);color: var(--purple-text); }
+    .flag-badge.clear    { background: var(--bg-muted); color: var(--muted); }
+    .sub-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── SLA badges ── */
+    .sla { font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 10px; }
+    .sla.ok     { background: var(--green-bg); color: var(--green-text); }
+    .sla.amber  { background: var(--amber-bg); color: var(--amber-text); }
+    .sla.red    { background: var(--red-bg);   color: var(--red-text); }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-primary { background: var(--blue); color: #fff; }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    /* ── Detail card / grid ── */
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 14px;
+    }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 20px;
+    }
+    .detail-row { display: flex; flex-direction: column; gap: 2px; }
+    .detail-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .detail-value { font-size: 13px; }
+
+    /* ── Flag card ── */
+    .flag-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+    .flag-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: var(--bg-muted);
+      border-bottom: 1px solid var(--border);
+    }
+    .flag-card-body { padding: 14px 16px; }
+    .statutory-ref { font-size: 12px; color: var(--muted); font-family: monospace; }
+    .doc-box {
+      font-family: monospace;
+      font-size: 12px;
+      background: var(--bg-muted);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      white-space: pre-wrap;
+      max-height: 220px;
+      overflow-y: auto;
+      margin-top: 8px;
+      line-height: 1.55;
+    }
+
+    /* ── Decision form ── */
+    details.decision { margin-top: 16px; }
+    details.decision summary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 10px 16px;
+      background: var(--blue-bg);
+      color: var(--blue-text);
+      border-radius: 6px;
+      user-select: none;
+    }
+    details.decision[open] summary { border-radius: 6px 6px 0 0; }
+    .decision-body {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 6px 6px;
+      padding: 20px;
+    }
+    .radio-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .radio-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    label.field { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+    input[type=text], textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: inherit;
+      background: var(--bg-surface);
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    textarea { resize: vertical; min-height: 72px; }
+    input[type=text]:focus, textarea:focus {
+      outline: none;
+      border-color: var(--blue);
+    }
+
+    /* ── Table ── */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th {
+      text-align: left;
+      padding: 8px 12px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-muted);
+    }
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--bg-muted); }
+
+    /* ── Empty state ── */
+    .empty {
+      text-align: center;
+      padding: 48px 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .empty strong { display: block; font-size: 16px; color: var(--text); margin-bottom: 6px; }
+
+    /* ── Misc ── */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+    .page-title { font-size: 20px; font-weight: 700; }
+    .page-sub { font-size: 13px; color: var(--muted); margin-top: 3px; }
+    .mono { font-family: monospace; }
+    .text-muted { color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-brand"><span>Jura</span> Compliance</div>
+  <nav class="sidebar-nav">
+    <a href="/compliance"           class="nav-link {% if active == 'queue' %}active{% endif %}">
+      Disclosure queue
+      {% if counts.pending > 0 %}
+        <span class="nav-badge">{{ counts.pending }}</span>
+      {% endif %}
+    </a>
+    <a href="/compliance/blocks"    class="nav-link {% if active == 'blocks' %}active{% endif %}">
+      Jurisdiction blocks
+      {% if counts.blocks > 0 %}
+        <span class="nav-badge red">{{ counts.blocks }}</span>
+      {% endif %}
+    </a>
+    <a href="/compliance/es"        class="nav-link {% if active == 'es' %}active{% endif %}">
+      E&amp;S pending
+      {% if counts.es > 0 %}
+        <span class="nav-badge blue">{{ counts.es }}</span>
+      {% endif %}
+    </a>
+    <a href="/compliance/conflicts" class="nav-link {% if active == 'conflicts' %}active{% endif %}">
+      Multi-state conflicts
+      {% if counts.conflicts > 0 %}
+        <span class="nav-badge purple">{{ counts.conflicts }}</span>
+      {% endif %}
+    </a>
+    <a href="/compliance/audit"     class="nav-link {% if active == 'audit' %}active{% endif %}">
+      Decisions log
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="llm-pill">{{ llm_provider }}</div>
+    <div>Jura v0.1.0</div>
+  </div>
+</aside>
+
+<!-- Main -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-title">{% block page_heading %}{{ self.title() }}{% endblock %}</span>
+      <span class="topbar-sub">Compliance portal · Small commercial</span>
+    </div>
+    <span class="live-badge">Jura live</span>
+  </div>
+  <div class="content">
+    {% if request.query_params.get('success') %}
+      <div class="banner success">✓ {{ request.query_params.get('msg', 'Action completed successfully.') }}</div>
+    {% endif %}
+    {% if request.query_params.get('note') %}
+      <div class="banner info">ℹ {{ request.query_params.get('note') }}</div>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </div>
+</div>
+
+</body>
+</html>

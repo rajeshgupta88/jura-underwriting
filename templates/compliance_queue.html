@@ -1,0 +1,80 @@
+{% extends "compliance_base.html" %}
+
+{% block title %}Disclosure queue{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">Disclosure queue</div>
+    <div class="page-sub">Submissions requiring compliance review before binding</div>
+  </div>
+</div>
+
+<div class="metric-row">
+  <div class="metric-card">
+    <div class="metric-value">{{ submissions | length }}</div>
+    <div class="metric-label">Pending disclosure</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-value" style="color: var(--green)">{{ approved_today }}</div>
+    <div class="metric-label">Approved today</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-value" style="font-size:20px">{{ avg_review_time }}</div>
+    <div class="metric-label">Avg review time</div>
+  </div>
+</div>
+
+{% if submissions %}
+  {% for sub in submissions %}
+  <div class="sub-card">
+    <div class="sub-card-header">
+      <div>
+        <div class="sub-name">{{ sub.named_insured }}</div>
+        <div class="sub-id">{{ sub.id }} · SIC {{ sub.sic_code }} · {{ sub.writing_state }}</div>
+      </div>
+      {% if sub.sla %}
+        <span class="sla {{ sub.sla.urgency }}">{{ sub.sla.label }}</span>
+      {% endif %}
+    </div>
+
+    {% if sub.doi_flags %}
+    <div class="flag-row">
+      {% for flag in sub.doi_flags %}
+        {% if flag.level != 'clear' %}
+          <span class="flag-badge {{ flag.level }}">{{ flag.rule_id }}</span>
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if sub.disclosure_docs %}
+    <div class="sub-meta">
+      Docs:
+      {% for doc in sub.disclosure_docs %}
+        {% set parts = doc.split('_') %}
+        <a href="/compliance/disclosure/{{ sub.id }}/{{ parts[-1].replace('.txt','') }}"
+           style="color: var(--blue-text); font-size: 12px;">
+          {{ doc | replace('/Users/neha/Documents/Rajesh/GitHub-Rajesh/Underwriting/jura-underwriting/data/disclosures/', '') }}
+        </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="sub-card-footer">
+      <span class="text-muted" style="font-size:12px">
+        TIV {{ "${:,.0f}".format(sub.tiv) if sub.tiv else 'N/A' }} ·
+        Market: {{ sub.market or '—' }}
+      </span>
+      <a href="/compliance/review/{{ sub.id }}" class="btn btn-primary">Review →</a>
+    </div>
+  </div>
+  {% endfor %}
+
+{% else %}
+  <div class="empty">
+    <strong>No disclosures pending.</strong>
+    All submissions cleared.
+  </div>
+{% endif %}
+{% endblock %}

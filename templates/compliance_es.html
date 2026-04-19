@@ -1,0 +1,58 @@
+{% extends "compliance_base.html" %}
+{% block title %}E&amp;S pending{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">E&amp;S pending</div>
+    <div class="page-sub">Submissions routed to surplus lines — diligent search required</div>
+  </div>
+</div>
+
+{% if submissions %}
+  {% for sub in submissions %}
+  <div class="sub-card">
+    <div class="sub-card-header">
+      <div>
+        <div class="sub-name">{{ sub.named_insured }}</div>
+        <div class="sub-id">{{ sub.id }} · {{ sub.writing_state }}</div>
+      </div>
+      <span class="flag-badge" style="background:var(--blue-bg);color:var(--blue-text)">{{ sub.status }}</span>
+    </div>
+    <div class="sub-meta">
+      SIC {{ sub.sic_code }} — {{ sub.sic_description }} ·
+      TIV {{ "${:,.0f}".format(sub.tiv) if sub.tiv else 'N/A' }}
+    </div>
+    {% if sub.declinations %}
+    <div style="margin: 10px 0;">
+      <div class="card-title" style="margin-bottom:8px">Mock diligent search declinations</div>
+      <table>
+        <thead>
+          <tr><th>Carrier</th><th>Date</th><th>Reason</th></tr>
+        </thead>
+        <tbody>
+          {% for d in sub.declinations %}
+          <tr>
+            <td>{{ d.carrier }}</td>
+            <td class="mono">{{ d.date }}</td>
+            <td>{{ d.reason }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+    <div class="sub-card-footer">
+      <span class="text-muted" style="font-size:12px">{{ sub.jurisdiction_outcome or '' }}</span>
+      <a href="/compliance/es-notice/{{ sub.id }}" class="btn btn-ghost" style="font-size:12px">
+        View E&amp;S notice ↗
+      </a>
+    </div>
+  </div>
+  {% endfor %}
+{% else %}
+  <div class="empty">
+    <strong>No E&amp;S submissions pending.</strong>
+    All surplus lines placements resolved.
+  </div>
+{% endif %}
+{% endblock %}

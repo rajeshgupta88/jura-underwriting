@@ -1,0 +1,46 @@
+{% extends "compliance_base.html" %}
+{% block title %}Multi-state conflicts{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">Multi-state conflicts</div>
+    <div class="page-sub">Submissions where writing state and mailing state have conflicting DOI rules</div>
+  </div>
+</div>
+
+{% if submissions %}
+  {% for sub in submissions %}
+  <div class="sub-card">
+    <div class="sub-card-header">
+      <div>
+        <div class="sub-name">{{ sub.named_insured }}</div>
+        <div class="sub-id">{{ sub.id }}</div>
+      </div>
+      <span class="flag-badge" style="background:var(--purple-bg);color:var(--purple-text)">CONFLICT</span>
+    </div>
+    <div class="sub-meta">
+      Writing: <strong>{{ sub.writing_state }}</strong> ·
+      Mailing: <strong>{{ sub.mailing_state }}</strong> ·
+      SIC {{ sub.sic_code }}
+    </div>
+    <div style="font-size:13px; background: var(--purple-bg); color: var(--purple-text);
+                border-radius:6px; padding: 8px 12px; margin: 8px 0;">
+      {{ sub.jurisdiction_outcome or 'Multi-state regulatory conflict detected.' }}
+    </div>
+    <div class="sub-card-footer">
+      <span class="text-muted" style="font-size:12px">Requires senior compliance review</span>
+      <form method="POST" action="/compliance/conflicts/{{ sub.id }}/escalate" style="display:inline">
+        <button type="submit" class="btn btn-primary" style="font-size:12px">
+          Escalate to senior compliance
+        </button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+{% else %}
+  <div class="empty">
+    <strong>No multi-state conflicts.</strong>
+    All submissions have consistent state rules.
+  </div>
+{% endif %}
+{% endblock %}

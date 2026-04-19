@@ -1,0 +1,45 @@
+{% extends "compliance_base.html" %}
+{% block title %}Jurisdiction blocks{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-title">Jurisdiction blocks</div>
+    <div class="page-sub">Submissions blocked by geo-specific regulatory rules — read-only, no override</div>
+  </div>
+</div>
+
+{% if submissions %}
+  {% for sub in submissions %}
+  <div class="sub-card">
+    <div class="sub-card-header">
+      <div>
+        <div class="sub-name">{{ sub.named_insured }}</div>
+        <div class="sub-id">{{ sub.id }} · {{ sub.writing_state }} · ZIP {{ sub.premises_zip }}</div>
+      </div>
+      <span class="flag-badge block">BLOCKED</span>
+    </div>
+    <div class="sub-meta" style="margin-bottom:8px">
+      SIC {{ sub.sic_code }} — {{ sub.sic_description }} ·
+      TIV {{ "${:,.0f}".format(sub.tiv) if sub.tiv else 'N/A' }}
+    </div>
+    {% if sub.jurisdiction_outcome %}
+    <div style="font-size:13px; color: var(--red-text); background: var(--red-bg);
+                border-radius:6px; padding: 8px 12px; margin-bottom:10px;">
+      {{ sub.jurisdiction_outcome }}
+    </div>
+    {% endif %}
+    <div class="sub-card-footer">
+      <span class="text-muted" style="font-size:12px">Blocked automatically — statutory requirement</span>
+      <a href="/compliance/notice/{{ sub.id }}" class="btn btn-ghost" style="font-size:12px">
+        View hold notice ↗
+      </a>
+    </div>
+  </div>
+  {% endfor %}
+{% else %}
+  <div class="empty">
+    <strong>No blocked submissions.</strong>
+    All jurisdictions are clear.
+  </div>
+{% endif %}
+{% endblock %}
