@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block page_title %}Jurisdiction blocks{% endblock %}
+{% block content %}
+<div class="page-header" style="display:flex; justify-content:space-between; align-items:flex-start;">
+  <div>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <div class="page-title">Jurisdiction blocks</div>
+      {% if submissions %}
+        <span class="badge badge-red">{{ submissions | length }}</span>
+      {% endif %}
+    </div>
+    <div class="page-sub">These submissions were automatically blocked. No UW action required. Broker notified.</div>
+  </div>
+</div>
+
+{% for pattern in patterns %}
+<div style="background:var(--amber-bg); color:var(--amber-text); padding:10px 16px;
+            border-radius:8px; font-size:13px; margin-bottom:12px;">
+  ⚠ Pattern detected: {{ pattern.count }} {{ pattern.reason }} blocks this week.
+  Consider reviewing DOI filing for {{ pattern.state }}.
+</div>
+{% endfor %}
+
+{% if submissions %}
+  {% for sub in submissions %}
+  <div class="block-card">
+    <div class="block-header">
+      <div>
+        <span style="font-weight:600">{{ sub.named_insured }}</span>
+        <span style="font-size:12px; color:var(--muted); margin-left:8px; font-family:monospace">{{ sub.id }}</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span style="font-size:12px">{{ sub.writing_state }} · {{ sub.premises_zip }}</span>
+        <span class="badge badge-red">blocked</span>
+        <span style="font-size:11px; color:var(--muted)">{{ sub.rel_time or '' }}</span>
+      </div>
+    </div>
+    <div class="block-body">
+      <div class="block-reason">{{ sub.jurisdiction_outcome or 'Jurisdiction block' }}</div>
+      {% if sub.statutory_ref %}
+        <div class="statutory">{{ sub.statutory_ref }}</div>
+      {% endif %}
+      <div style="margin-top:10px; font-size:12px;">
+        Hold notice issued:
+        <a href="/compliance/notice/{{ sub.id }}"
+           style="color:var(--blue-text); text-decoration:underline;"
+           target="_blank">/compliance/notice/{{ sub.id }}</a>
+      </div>
+    </div>
+    <div class="block-footer">
+      Submission closed · Broker notified · Logged to jurisdiction_log.jsonl
+    </div>
+  </div>
+  {% endfor %}
+{% else %}
+  <div class="empty-state">
+    <strong>No blocked submissions.</strong>
+    All jurisdictions clear.
+  </div>
+{% endif %}
+{% endblock %}

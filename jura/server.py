@@ -3,10 +3,12 @@ from __future__ import annotations
 import os
 from contextlib import asynccontextmanager
 from datetime import datetime
+from pathlib import Path
 from typing import Any
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.staticfiles import StaticFiles
 from rich.console import Console
 
 from compliance.review import router as compliance_router
@@ -16,6 +18,9 @@ from jura.db import SubmissionDB, _SEED
 from jura.llm import get_client, get_provider, get_provider_config, llm_status
 from jura.models import SubmissionEvent
 from jura.router import JurisdictionRouter
+from jura.views import router as views_router
+
+_ROOT = Path(__file__).parent.parent
 
 console = Console()
 
@@ -29,6 +34,18 @@ _VERSION = "0.1.0"
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     load_dotenv()
+
+    # Ensure data directories and files exist
+    data_dir = _ROOT / "data"
+    data_dir.mkdir(exist_ok=True)
+    (data_dir / "aria_pending").mkdir(exist_ok=True)
+    (data_dir / "hold_notices").mkdir(exist_ok=True)
+    (data_dir / "disclosures").mkdir(exist_ok=True)
+    (data_dir / "es_notices").mkdir(exist_ok=True)
+    for jsonl in ("jurisdiction_log.jsonl", "compliance_decisions.jsonl"):
+        p = data_dir / jsonl
+        if not p.exists():
+            p.touch()
 
     db = SubmissionDB()
     audit = JurisdictionAuditLogger()
@@ -65,6 +82,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Jura", version=_VERSION, lifespan=lifespan)
+app.include_router(views_router)
 app.include_router(compliance_router)
 
 

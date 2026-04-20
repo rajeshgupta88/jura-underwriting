@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block page_title %}Submission queue{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-title">Submission queue</div>
+  <div class="page-sub">All submissions processed by Jura today</div>
+</div>
+
+<div class="metric-row">
+  <div class="metric-card">
+    <div class="metric-val">{{ metrics.total }}</div>
+    <div class="metric-lbl">Checked today</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-val" style="color:var(--green)">{{ metrics.cleared }}</div>
+    <div class="metric-lbl">Cleared → Aria</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-val" style="color:var(--amber)">{{ metrics.disclose }}</div>
+    <div class="metric-lbl">Disclosure pending</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-val" style="color:var(--red)">{{ metrics.blocked }}</div>
+    <div class="metric-lbl">Blocked</div>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <a href="/"              class="filter-link {% if filter == 'all' %}active{% endif %}">All</a>
+  <a href="/?filter=cleared"    class="filter-link {% if filter == 'cleared' %}active{% endif %}">Cleared</a>
+  <a href="/?filter=disclosure" class="filter-link {% if filter == 'disclosure' %}active{% endif %}">Disclosure</a>
+  <a href="/?filter=es"         class="filter-link {% if filter == 'es' %}active{% endif %}">E&amp;S</a>
+  <a href="/?filter=blocked"    class="filter-link {% if filter == 'blocked' %}active{% endif %}">Blocked</a>
+</div>
+
+{% if submissions %}
+<div class="card">
+  <table>
+    <thead>
+      <tr>
+        <th>Named insured</th>
+        <th>SIC</th>
+        <th>State</th>
+        <th>Market</th>
+        <th>DOI flags</th>
+        <th>Outcome</th>
+        <th>Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sub in submissions %}
+      {% set href = '/compliance/review/' + sub.id if sub.status == 'admitted_disclose_pending' else ('/blocks' if sub.status == 'jurisdiction_blocked' else '#') %}
+      <tr class="clickable" data-href="{{ href }}">
+        <td>
+          <div style="font-weight:500">{{ sub.named_insured }}</div>
+          <div style="font-size:11px; color:var(--muted); font-family:monospace">{{ sub.id }}</div>
+        </td>
+        <td style="color:var(--muted); font-size:12px">{{ sub.sic_code }}</td>
+        <td>{{ sub.writing_state }}</td>
+        <td>
+          {% if sub.market == 'admitted' %}
+            <span class="badge badge-blue">admitted</span>
+          {% elif sub.market == 'surplus_lines' %}
+            <span class="badge badge-purple">E&amp;S</span>
+          {% elif sub.market == 'restricted' %}
+            <span class="badge badge-red">restricted</span>
+          {% elif sub.market == 'multi_state_conflict' %}
+            <span class="badge badge-amber">multi-state</span>
+          {% else %}
+            <span class="badge badge-muted">{{ sub.market or '—' }}</span>
+          {% endif %}
+        </td>
+        <td>
+          {% for f in sub.doi_flags %}
+            {% if f.level != 'clear' %}
+              {% if f.level == 'block' %}
+                <span class="badge badge-red" style="font-size:10px">{{ f.rule_id }}</span>
+              {% elif f.level == 'disclose' %}
+                <span class="badge badge-amber" style="font-size:10px">{{ f.rule_id }}</span>
+              {% elif f.level == 'warn' %}
+                <span class="badge badge-muted" style="font-size:10px">{{ f.rule_id }}</span>
+              {% else %}
+                <span class="badge badge-green" style="font-size:10px">{{ f.rule_id }}</span>
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {% if not sub.doi_flags or sub.doi_flags | selectattr('level', 'ne', 'clear') | list | length == 0 %}
+            <span class="badge badge-green" style="font-size:10px">clear</span>
+          {% endif %}
+        </td>
+        <td>
+          {% set s = sub.status or '' %}
+          {% if 'forwarded' in s or 'approved' in s %}
+            <span class="badge badge-green">{{ s }}</span>
+          {% elif 'pending' in s %}
+            <span class="badge badge-amber">{{ s }}</span>
+          {% elif 'blocked' in s %}
+            <span class="badge badge-red">{{ s }}</span>
+          {% elif 'surplus' in s or 'es' in s %}
+            <span class="badge badge-purple">{{ s }}</span>
+          {% elif 'conflict' in s %}
+            <span class="badge badge-amber">{{ s }}</span>
+          {% else %}
+            <span class="badge badge-muted">{{ s or '—' }}</span>
+          {% endif %}
+        </td>
+        <td style="color:var(--muted); font-size:12px; white-space:nowrap">{{ sub.rel_time or '—' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty-state">
+  <strong>No submissions yet.</strong>
+  Run: <code style="font-family:monospace; font-size:12px">python run_demo.py</code>
+</div>
+{% endif %}
+{% endblock %}

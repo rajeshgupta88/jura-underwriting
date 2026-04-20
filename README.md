@@ -45,6 +45,48 @@ pytest tests/
 
 ---
 
+## Running the Jura exec demo
+
+The exec demo seeds 5 sample submissions and displays results in a Rich summary table.
+
+```bash
+source .venv/bin/activate
+
+# Seed submissions and print summary (server must be running separately, or it auto-starts)
+python run_demo.py
+
+# Seed submissions AND open the browser to the exec UI
+python run_demo.py --demo
+```
+
+### Exec demo screens
+
+| Screen | URL | Description |
+|---|---|---|
+| Submission queue | `http://localhost:8003/` | All submissions with filter bar |
+| Jurisdiction blocks | `http://localhost:8003/blocks` | Blocked subs + pattern detection |
+| Audit log | `http://localhost:8003/audit` | SHA-256 tamper-evident log |
+| Insights | `http://localhost:8003/insights` | Clear rate · SLA · governance health |
+| Compliance review | `http://localhost:8003/compliance` | Disclosure review portal |
+
+---
+
+## Running Jura + Aria together
+
+Jura (port 8003) routes to Aria (port 8001) via `POST /score`. Set `ARIA_ENDPOINT` to override the default:
+
+```bash
+# Terminal 1 — start Aria (W2-B)
+cd ../aria-underwriting
+uvicorn aria.server:app --port 8001
+
+# Terminal 2 — start Jura
+cd ../jura-underwriting
+HITL_MODE=browser uvicorn jura.server:app --port 8003 --reload
+```
+
+---
+
 ## Architecture
 
 ```

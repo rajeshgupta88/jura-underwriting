@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block page_title %}Audit log{% endblock %}
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">
+  <div>
+    <div class="page-title">Audit log</div>
+    <div class="page-sub">Append-only · tamper-evident · sha256</div>
+  </div>
+  <a href="/audit/export" class="btn btn-blue" download>↓ Export for DOI exam</a>
+</div>
+
+{% if integrity.status == 'ok' %}
+<div class="integrity-banner integrity-ok">
+  ✓ All {{ integrity.total }} entries verified · No tampering detected
+</div>
+{% else %}
+<div class="integrity-banner integrity-fail">
+  ⚠ WARNING: {{ integrity.invalid }} tampered entries detected
+  {% if integrity.errors %}— first error: line {{ integrity.errors[0].line }}{% endif %}
+</div>
+{% endif %}
+
+<div class="section-title">Jurisdiction log</div>
+<div class="card">
+  {% if jurisdiction_entries %}
+  <table>
+    <thead>
+      <tr>
+        <th>Hash</th>
+        <th>Named insured</th>
+        <th>State</th>
+        <th>Market</th>
+        <th>Outcome</th>
+        <th>Flags</th>
+        <th>Time</th>
+        <th>✓</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in jurisdiction_entries %}
+      {% set row_bg = 'var(--green-bg)' if e._outcome == 'clear' else ('var(--amber-bg)' if e._outcome == 'disclose' else ('var(--red-bg)' if e._outcome == 'block' else ('var(--purple-bg)' if e._outcome == 'es' else ''))) %}
+      <tr style="{% if row_bg %}background:{{ row_bg }}{% endif %}">
+        <td class="hash">{{ e.log_hash[:8] if e.log_hash else '—' }}</td>
+        <td style="font-size:12px">{{ e.named_insured or '—' }}</td>
+        <td>{{ e.writing_state }}</td>
+        <td style="font-size:12px">{{ e.market }}</td>
+        <td>
+          {% if e.eligible %}<span class="badge badge-green">eligible</span>
+          {% else %}<span class="badge badge-red">blocked</span>{% endif %}
+        </td>
+        <td>
+          {% for f in e.doi_flags %}
+            {% if f.level != 'clear' %}
+              <span class="badge badge-{% if f.level == 'block' %}red{% elif f.level == 'disclose' %}amber{% else %}muted{% endif %}" style="font-size:10px">{{ f.rule_id }}</span>
+            {% endif %}
+          {% endfor %}
+        </td>
+        <td style="font-size:11px; color:var(--muted); white-space:nowrap">
+          {{ e.checked_at[:16].replace('T', ' ') if e.checked_at else '—' }}
+        </td>
+        <td class="check">✓</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div style="padding:32px; text-align:center; color:var(--muted)">No jurisdiction log entries yet.</div>
+  {% endif %}
+</div>
+
+{% if decision_entries %}
+<div class="section-title">Compliance decisions</div>
+<div class="card">
+  <table>
+    <thead>
+      <tr>
+        <th>Submission</th>
+        <th>Choice</th>
+        <th>Reviewer</th>
+        <th>Notes</th>
+        <th>Decided at</th>
+        <th>✓</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for d in decision_entries %}
+      <tr>
+        <td class="hash">{{ d.submission_id }}</td>
+        <td>
+          {% if d.choice == 'approve' %}
+            <span class="badge badge-green">approve</span>
+          {% elif d.choice == 'request_changes' %}
+            <span class="badge badge-amber">changes</span>
+          {% else %}
+            <span class="badge badge-muted">{{ d.choice }}</span>
+          {% endif %}
+        </td>
+        <td style="font-size:12px">{{ d.reviewer_id or '—' }}</td>
+        <td style="font-size:12px; color:var(--muted); max-width:160px;">{{ d.notes or '' }}</td>
+        <td style="font-size:11px; color:var(--muted); white-space:nowrap">
+          {{ d.decided_at[:16].replace('T', ' ') if d.decided_at else '—' }}
+        </td>
+        <td class="check">✓</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+<div class="audit-footer">
+  {{ integrity.total }} jurisdiction entries · {{ decision_count }} compliance decisions · append-only · sha256
+</div>
+{% endblock %}

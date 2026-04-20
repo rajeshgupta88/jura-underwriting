@@ -226,3 +226,7 @@ class SubmissionDB:
     def seed_sample_data(self) -> None:
         for sub in _SEED:
             self.insert_submission(sub)
+
+    def clear_submissions(self) -> None:
+        with self._conn() as conn:
+            conn.execute("DELETE FROM submissions")

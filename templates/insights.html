@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block page_title %}Insights{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-title">Insights</div>
+  <div class="page-sub">Live metrics from jurisdiction log + DB</div>
+</div>
+
+<div class="metric-row">
+  <div class="metric-card">
+    <div class="metric-val" style="color:var(--green)">{{ metrics.clear_rate }}%</div>
+    <div class="metric-lbl">Clear rate</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-val">{{ metrics.avg_check_time }}</div>
+    <div class="metric-lbl">Avg check time</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-val" style="color:var(--amber)">{{ metrics.disclosures }}</div>
+    <div class="metric-lbl">Disclosures generated</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-val" style="color:var(--red)">{{ metrics.violations_prevented }}</div>
+    <div class="metric-lbl">DOI violations prevented</div>
+  </div>
+</div>
+
+<div class="insight-grid">
+
+  <!-- Card 1: Block reasons -->
+  <div class="insight-card">
+    <div class="insight-title">Block reasons</div>
+    {% if block_reasons %}
+      {% for item in block_reasons %}
+      <div class="bar-row">
+        <span class="bar-label">{{ item.label }}</span>
+        <div class="bar-wrap">
+          <div class="bar-fill" style="width:{{ item.pct }}%; background:var(--red);"></div>
+        </div>
+        <span class="bar-count" style="color:var(--red-text)">{{ item.count }}</span>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div style="color:var(--muted); font-size:13px; text-align:center; padding:16px 0;">No blocks recorded.</div>
+    {% endif %}
+  </div>
+
+  <!-- Card 2: Disclosure types -->
+  <div class="insight-card">
+    <div class="insight-title">Disclosure types</div>
+    {% if disclosure_types %}
+      {% for item in disclosure_types %}
+      <div class="bar-row">
+        <span class="bar-label">{{ item.label }}</span>
+        <div class="bar-wrap">
+          <div class="bar-fill" style="width:{{ item.pct }}%; background:var(--amber);"></div>
+        </div>
+        <span class="bar-count" style="color:var(--amber-text)">{{ item.count }}</span>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div style="color:var(--muted); font-size:13px; text-align:center; padding:16px 0;">No disclosures recorded.</div>
+    {% endif %}
+  </div>
+
+  <!-- Card 3: SLA status -->
+  <div class="insight-card">
+    <div class="insight-title">Compliance SLA status</div>
+    {% if sla_items %}
+      {% for item in sla_items %}
+      <div class="sla-item">
+        <div class="sla-dot" style="background:{{ item.dot_color }}"></div>
+        <div style="flex:1; font-size:12px;">
+          <div style="font-weight:500">{{ item.named_insured }}</div>
+          <div style="color:var(--muted)">{{ item.sla_label }}</div>
+        </div>
+        <a href="/compliance/review/{{ item.id }}" style="font-size:11px; color:var(--blue-text)">Review →</a>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div style="color:var(--muted); font-size:13px; text-align:center; padding:16px 0;">
+        No disclosures pending SLA review.
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Card 4: Governance health -->
+  <div class="insight-card">
+    <div class="insight-title">Governance health</div>
+    <div class="gov-row">
+      <span class="gov-label">Audit log integrity</span>
+      <span class="badge {% if governance.integrity_ok %}badge-green{% else %}badge-red{% endif %}">
+        {{ 'OK' if governance.integrity_ok else 'FAIL' }}
+      </span>
+    </div>
+    <div class="gov-row">
+      <span class="gov-label">Disclosure approval rate</span>
+      <span style="font-weight:600">{{ governance.approval_rate }}%</span>
+    </div>
+    <div class="gov-row">
+      <span class="gov-label">DOI rule version</span>
+      <span class="hash">{{ governance.doi_version }}</span>
+    </div>
+    <div class="gov-row">
+      <span class="gov-label">Moratorium last updated</span>
+      <span class="hash">{{ governance.moratorium_updated }}</span>
+    </div>
+    <div class="gov-row">
+      <span class="gov-label">LLM provider</span>
+      <span style="font-size:12px">{{ governance.llm_label }}</span>
+    </div>
+    <div class="gov-row">
+      <span class="gov-label">HITL mode</span>
+      <span class="badge badge-blue">{{ governance.hitl_mode }}</span>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
